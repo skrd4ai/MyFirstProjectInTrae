@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FastAPI Frontend</title>
+</head>
+<body>
+    <h1>FastAPI Frontend</h1>
+    <div id="root"></div>
+    <script>
+        fetch('http://127.0.0.1:8000/')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('root').innerHTML = `<p>Hello: ${data.Hello}</p>`;
+            });
+
+        fetch('http://127.0.0.1:8000/items/42?q=test')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('root').innerHTML += `<p>Item ID: ${data.item_id}, Query: ${data.q}</p>`;
+            });
+    </script>
+</body>
+</html>
