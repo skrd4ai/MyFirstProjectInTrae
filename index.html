@@ -1,44 +1,133 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>FastAPI Frontend</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Explorer</title>
     <style>
-        body { font-family: sans-serif; }
-        #results { border: 1px solid #ccc; padding: 10px; margin-top: 10px; }
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --background-color: #f8f9fa;
+            --text-color: #333;
+            --card-background: #fff;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+        }
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+        }
+        .card {
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #results {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: #e9ecef;
+            border-radius: var(--border-radius);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
     </style>
 </head>
 <body>
-    <h1>FastAPI Frontend</h1>
-    <div id="results">
-        <p>Loading...</p>
+    <div class="container">
+        <h1>API Explorer</h1>
+        
+        <div class="card">
+            <form id="item-form">
+                <div class="form-group">
+                    <label for="item-id">Item ID</label>
+                    <input type="number" id="item-id" value="42" required>
+                </div>
+                <div class="form-group">
+                    <label for="query">Query</label>
+                    <input type="text" id="query" value="test">
+                </div>
+                <button type="submit">Fetch Item</button>
+            </form>
+        </div>
+
+        <div id="results">
+            <p>Submit the form to fetch data from the API.</p>
+        </div>
     </div>
 
     <script>
-        async function fetchData() {
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = ''; // Clear loading message
+        const form = document.getElementById('item-form');
+        const resultsDiv = document.getElementById('results');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const itemId = document.getElementById('item-id').value;
+            const query = document.getElementById('query').value;
+            
+            resultsDiv.innerHTML = '<p>Loading...</p>';
 
             try {
-                // Fetch root endpoint
-                const rootResponse = await fetch('/api/');
-                const rootData = await rootResponse.json();
-                const rootP = document.createElement('p');
-                rootP.textContent = `Root endpoint says: Hello ${rootData.Hello}`;
-                resultsDiv.appendChild(rootP);
+                const url = `/api/items/${itemId}?q=${encodeURIComponent(query)}`;
+                const response = await fetch(url);
 
-                // Fetch items endpoint
-                const itemResponse = await fetch('/api/items/42?q=test');
-                const itemData = await itemResponse.json();
-                const itemP = document.createElement('p');
-                itemP.textContent = `Items endpoint says: Item ID is ${itemData.item_id} with query "${itemData.q}"`;
-                resultsDiv.appendChild(itemP);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                resultsDiv.innerHTML = `<h3>API Response:</h3><pre><code>${JSON.stringify(data, null, 2)}</code></pre>`;
 
             } catch (error) {
-                resultsDiv.innerHTML = `<p>Error fetching data: ${error}</p>`;
+                resultsDiv.innerHTML = `<p style="color: red;">Error fetching data: ${error.message}</p>`;
             }
-        }
-
-        fetchData();
+        });
     </script>
 </body>
 </html>
