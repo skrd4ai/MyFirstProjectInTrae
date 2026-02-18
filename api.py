@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -13,9 +14,13 @@ app.add_middleware(
 )
 
 @app.get("/")
+async def read_index():
+    return FileResponse('index.html')
+
+@app.get("/api/")
 def read_root():
     return {"Hello": "World"}
 
-@app.get("/items/{item_id}")
+@app.get("/api/items/{item_id}")
 def read_item(item_id: int, q: str | None = None):
     return {"item_id": item_id, "q": q}

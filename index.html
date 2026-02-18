@@ -2,22 +2,43 @@
 <html>
 <head>
     <title>FastAPI Frontend</title>
+    <style>
+        body { font-family: sans-serif; }
+        #results { border: 1px solid #ccc; padding: 10px; margin-top: 10px; }
+    </style>
 </head>
 <body>
     <h1>FastAPI Frontend</h1>
-    <div id="root"></div>
-    <script>
-        fetch('http://127.0.0.1:8000/')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('root').innerHTML = `<p>Hello: ${data.Hello}</p>`;
-            });
+    <div id="results">
+        <p>Loading...</p>
+    </div>
 
-        fetch('http://127.0.0.1:8000/items/42?q=test')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('root').innerHTML += `<p>Item ID: ${data.item_id}, Query: ${data.q}</p>`;
-            });
+    <script>
+        async function fetchData() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = ''; // Clear loading message
+
+            try {
+                // Fetch root endpoint
+                const rootResponse = await fetch('/api/');
+                const rootData = await rootResponse.json();
+                const rootP = document.createElement('p');
+                rootP.textContent = `Root endpoint says: Hello ${rootData.Hello}`;
+                resultsDiv.appendChild(rootP);
+
+                // Fetch items endpoint
+                const itemResponse = await fetch('/api/items/42?q=test');
+                const itemData = await itemResponse.json();
+                const itemP = document.createElement('p');
+                itemP.textContent = `Items endpoint says: Item ID is ${itemData.item_id} with query "${itemData.q}"`;
+                resultsDiv.appendChild(itemP);
+
+            } catch (error) {
+                resultsDiv.innerHTML = `<p>Error fetching data: ${error}</p>`;
+            }
+        }
+
+        fetchData();
     </script>
 </body>
 </html>
